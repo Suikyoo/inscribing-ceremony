@@ -1,8 +1,8 @@
 <script lang="ts">
 	import jsQR from "jsqr";
-	import type { ActionData } from "../routes/$types";
+  import { enhance } from "$app/forms"
 
-  const {form = $bindable()}: {form: ActionData} = $props();
+  const {form = $bindable(), afterSubmit} = $props();
 
   
   let video: HTMLVideoElement;
@@ -11,7 +11,6 @@
 
   let qr_name = $state("");
   let qr_id = $state("");
-  let attempts = $state(0);
 
   let htmlForm: HTMLFormElement;
 
@@ -33,7 +32,6 @@ function stopCamera() {
 }
 
 function tick() {
-  attempts += 1;
   if (!video) throw new Error("Video null")
   if (video.readyState === video.HAVE_ENOUGH_DATA) {
     const w = video.videoWidth, h = video.videoHeight;
@@ -49,8 +47,9 @@ function tick() {
       const [temp_name, temp_id, ..._] = code.data.split(";")
       qr_name = temp_name; 
       qr_id = temp_id;
-      setTimeout(async() => htmlForm.submit(), 1000);
-
+      setTimeout(() => htmlForm.requestSubmit?.() ?? 
+      htmlForm.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })), 
+      100);
 
     }
   }
@@ -58,7 +57,8 @@ function tick() {
 }
 
   const start = () => startCamera().catch(err => alert('Camera error: ' + err.message))
-  const stop = () => stopCamera
+  const stop = () => stopCamera()
+
 </script>
 
   <video bind:this={video} autoplay playsinline></video>
@@ -66,7 +66,20 @@ function tick() {
   <button onclick={stop}>Stop</button>
 
 <div>
-  <form method="POST"  style="background-color: red;" bind:this={htmlForm}>
+  <form 
+  method="POST"  
+  style="background-color: red;" 
+  bind:this={htmlForm}
+  action="/"
+  use:enhance={({ formElement, formData, action, cancel, submitter }) => {
+		// `formElement` is this `<form>` element
+		// `formData` is its `FormData` object that's about to be submitted
+		// `action` is the URL to which the form is posted
+		// calling `cancel()` will prevent the submission
+		// `submitter` is the `HTMLElement` that caused the form to be submitted
+
+    return afterSubmit;
+  }}  >
 
   {#if form?.success}
     <p>form submitted</p>

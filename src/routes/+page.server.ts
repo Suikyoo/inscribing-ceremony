@@ -1,36 +1,44 @@
 import { db } from '$lib/server/db';
 import { studentsTable } from '$lib/server/db/schema';
-import { fail } from '@sveltejs/kit';
+import { fail, } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { eq } from 'drizzle-orm';
+import { eq, type InferSelectModel } from 'drizzle-orm';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({fetch, depends}) => {
+  const res = await fetch("/api/students");
+  const students: InferSelectModel<typeof studentsTable>[] = await res.json();
+
+  depends("app:reload");
+
   return {
-    students: await db.select().from(studentsTable).where(eq(studentsTable.visible, 1))
+    students
   };
+
 };
 
 export const actions = {
   default: async ({ cookies, request }) => {
     const data = await request.formData()
     const name = data.get("name")?.toString();
-    const id = data.get("id")?.toString();
+    const id = Number(data.get("id")?.toString());
 
     //"fail missing"
     if (!name || !id) {
-      return fail(400, {name, id, missing: true});
+      return fail(400, {id, missing: true});
 
     }
-    const id_objs = await db.select({id: studentsTable.id}).from(studentsTable);
+    const id_objs = await db.select({id: studentsTable.id}).from(studentsTable).where(eq(studentsTable.visible, 1));
     const ids = id_objs.map(i => i.id);
 
     //"fail repeated"
     if (ids.includes(id)) {
-      return fail(400, {name, id, repeated: true});
+      return fail(400, {id, repeated: true});
     }
 
-    const v = await db.update(studentsTable).set({visible: 1}).where(eq(studentsTable.id, id))
-    return {name, id, success: true}
+    const res = await db.update(studentsTable).set({visible: 1}).where(eq(studentsTable.id, id))
+    console.log("changes: ",res.changes)
+
+    return ({id, success: true})
 
   } 
 } satisfies Actions;
