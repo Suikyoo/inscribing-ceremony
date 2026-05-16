@@ -1,13 +1,14 @@
-import { drizzle } from 'drizzle-orm/better-sqlite3';
-import Database from 'better-sqlite3';
-import * as schema from './schema';
-import { env } from '$env/dynamic/private';
-import { seed } from './seed';
+import { DATABASE_URL } from '$env/static/private'
+import { drizzle } from 'drizzle-orm/postgres-js'
+import postgres from 'postgres'
+import { seed } from './seed'
 
-if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
+const connectionString = DATABASE_URL
+if (!connectionString) throw new Error("db url missing. ")
 
-const client = new Database(env.DATABASE_URL);
-
-export const db = drizzle(client, { schema });
+// Disable prefetch as it is not supported for "Transaction" pool mode
+const client = postgres(connectionString, { prepare: false })
+export const db = drizzle(client);
+console.log("created db");
 
 await seed();

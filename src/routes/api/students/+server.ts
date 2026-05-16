@@ -5,6 +5,6 @@ import { json } from "@sveltejs/kit";
 import { eq } from "drizzle-orm";
 
 export const GET: RequestHandler = async () => {
-  const students = await db.select().from(studentsTable).where(eq(studentsTable.visible, 1));
+  const students = await db.select().from(studentsTable).where(eq(studentsTable.visible, true));
   return json(students);
 }

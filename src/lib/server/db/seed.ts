@@ -9,7 +9,7 @@ export const seed = async() => {
       id: i,
       name: `person ${i}`,
       description: `this is person ${i}`,
-      visible: 0,
+      visible: false,
     })
   }
   await db.insert(studentsTable).values(data).onConflictDoNothing({target: studentsTable.id});

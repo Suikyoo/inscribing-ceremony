@@ -21,22 +21,19 @@ export const actions = {
     const data = await request.formData()
     const name = data.get("name")?.toString();
     const id = Number(data.get("id")?.toString());
-
     //"fail missing"
     if (!name || !id) {
       return fail(400, {id, missing: true});
 
     }
-    const id_objs = await db.select({id: studentsTable.id}).from(studentsTable).where(eq(studentsTable.visible, 1));
+    const id_objs = await db.select({id: studentsTable.id}).from(studentsTable).where(eq(studentsTable.visible, true));
     const ids = id_objs.map(i => i.id);
-
     //"fail repeated"
     if (ids.includes(id)) {
       return fail(400, {id, repeated: true});
     }
 
-    const res = await db.update(studentsTable).set({visible: 1}).where(eq(studentsTable.id, id))
-    console.log("changes: ",res.changes)
+    await db.update(studentsTable).set({visible: true}).where(eq(studentsTable.id, id))
 
     return ({id, success: true})
 

@@ -1,8 +1,8 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+import { pgTable, serial, text, boolean } from "drizzle-orm/pg-core";
 
-export const studentsTable = sqliteTable('students', {
-	id: integer('id').primaryKey(),
+export const studentsTable = pgTable('students', {
+	id: serial('id').primaryKey(),
 	name: text('name').notNull(),
   description: text('description'),
-  visible: integer("visible").notNull().default(0),
+  visible: boolean("visible").notNull().default(false),
 });
