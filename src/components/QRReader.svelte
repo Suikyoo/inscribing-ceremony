@@ -77,6 +77,7 @@ function tick() {
 		// `action` is the URL to which the form is posted
 		// calling `cancel()` will prevent the submission
 		// `submitter` is the `HTMLElement` that caused the form to be submitted
+    console.log("enhanced pre-submit");
 
     return afterSubmit;
   }}  >
@@ -90,7 +91,7 @@ function tick() {
   {/if}
 
   {#if form?.repeated}
-    <p>id already registered</p>
+    <p>id repeated</p>
   {/if}
 
     <label>

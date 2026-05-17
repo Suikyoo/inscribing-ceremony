@@ -3,6 +3,7 @@ import { studentsTable } from '$lib/server/db/schema';
 import { fail, } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { eq, type InferSelectModel } from 'drizzle-orm';
+import { invalidateAll } from '$app/navigation';
 
 export const load: PageServerLoad = async ({fetch, depends}) => {
   const res = await fetch("/api/students");
@@ -26,8 +27,12 @@ export const actions = {
       return fail(400, {id, missing: true});
 
     }
-    const id_objs = await db.select({id: studentsTable.id}).from(studentsTable).where(eq(studentsTable.visible, true));
-    const ids = id_objs.map(i => i.id);
+    const raw_ids = await db.select({id: studentsTable.id})
+    .from(studentsTable)
+    .where(eq(studentsTable.visible, true))
+
+    const ids = raw_ids.map(i => i.id);
+
     //"fail repeated"
     if (ids.includes(id)) {
       return fail(400, {id, repeated: true});
