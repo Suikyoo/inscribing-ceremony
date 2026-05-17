@@ -58,12 +58,16 @@ function tick() {
 
   const start = () => startCamera().catch(err => alert('Camera error: ' + err.message))
   const stop = () => stopCamera()
-
 </script>
 
-  <video bind:this={video} autoplay playsinline></video>
-  <button onclick={start}>Start</button>
-  <button onclick={stop}>Stop</button>
+
+
+
+
+
+<video bind:this={video} autoplay playsinline></video>
+<button onclick={start}>Start</button>
+<button onclick={stop}>Stop</button>
 
 <div>
   <form 
@@ -71,14 +75,7 @@ function tick() {
   style="background-color: red;" 
   bind:this={htmlForm}
   action="/"
-  use:enhance={({ formElement, formData, action, cancel, submitter }) => {
-		// `formElement` is this `<form>` element
-		// `formData` is its `FormData` object that's about to be submitted
-		// `action` is the URL to which the form is posted
-		// calling `cancel()` will prevent the submission
-		// `submitter` is the `HTMLElement` that caused the form to be submitted
-    console.log("enhanced pre-submit");
-
+  use:enhance={() => {
     return afterSubmit;
   }}  >
 

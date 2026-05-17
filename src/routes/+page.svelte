@@ -25,6 +25,10 @@
     }
 </script>
 
+
+
+
+
 <div>
   {#each data.students as student}
     <div style="background-color: red;">
