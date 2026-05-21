@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import QRReader from "../components/QRReader.svelte";
+	import QRReader from "../../components/QRReader.svelte";
   import type { PageProps } from "./$types";
   import { connect } from "$lib/websockets";
 	import { invalidate } from "$app/navigation";
@@ -39,4 +39,5 @@
     </div>
   {/each}
 
+  <QRReader {form} {afterSubmit} />
 </div>

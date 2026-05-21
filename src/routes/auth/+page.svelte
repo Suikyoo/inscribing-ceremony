@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import QRReader from "../components/QRReader.svelte";
+	import QRReader from "../../components/QRReader.svelte";
   import type { PageProps } from "./$types";
   import { connect } from "$lib/websockets";
 	import { invalidate } from "$app/navigation";
@@ -25,18 +25,31 @@
     }
 </script>
 
+<form 
+  method="POST"  
+  style="background-color: red;" 
+  action="/"
 
+  {#if form?.success}
+    <p>form submitted</p>
+  {/if}
 
+  {#if form?.missing}
+    <p>form missing contents</p>
+  {/if}
 
+  {#if form?.repeated}
+    <p>id repeated</p>
+  {/if}
 
-<div>
-  {#each data.students as student}
-    <div style="background-color: red;">
-      
-      <p>{student.name}</p>
-      <p>{student.id}</p>
-      <img src={`/student-imgs/${student.id}`} alt="student">
-    </div>
-  {/each}
+    <label>
+      name: 
+      <input bind:value={qr_name} name="name" type="text" />
+    </label>
+    <label>
+      id: 
+      <input bind:value={qr_id} name="id" type="text" />
+    </label>
+    <button>Submit</button>
+  </form>
 
-</div>
