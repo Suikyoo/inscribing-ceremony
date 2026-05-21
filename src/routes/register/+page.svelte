@@ -18,16 +18,11 @@
 
   const afterSubmit = async ({result}: {result: ActionResult}) => {
     console.log("result: ", result)
-    if (result.type == "success") {
-      socket.send(result.data?.id || "-1");
+    if (result.type == "success") { socket.send(result.data?.id || "-1");
       }
     await applyAction(result);
     }
 </script>
-
-
-
-
 
 <div>
   {#each data.students as student}
