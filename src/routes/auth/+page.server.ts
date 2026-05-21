@@ -1,6 +1,6 @@
 import { authenticate } from "$lib/server/auth";
 import { fail, redirect } from "@sveltejs/kit";
-import type { Actions } from "../$types";
+import type { Actions } from "./$types";
 
 
 
@@ -23,11 +23,10 @@ export const actions = {
       })
 
     } catch (e) {
-      console.log(e);
       return fail(400, {fail: true})
     }
 
-    return redirect(303, "/register");
+    return redirect(303, "/master");
 
   } 
 } satisfies Actions;

@@ -1,4 +1,4 @@
-import { JWT_KEY } from '$env/static/private';
+import { JWT_SECRET } from '$env/static/private';
 import { type Handle } from '@sveltejs/kit';
 import * as jwt from "jose"
 
@@ -11,15 +11,15 @@ export const handle: Handle = async ({ event, resolve }) => {
 
   const [_, token] = authHead?.split(" ");
 
-  if (!JWT_KEY) throw new Error("No JWT Key specified in env variables. ");
+  if (!JWT_SECRET) throw new Error("No JWT Key specified in env variables. ");
 
-  const secret = Buffer.from(JWT_KEY, "base64");
+  const secret = new TextEncoder().encode(JWT_SECRET);
 
   try {
-    await jwt.jwtVerify(token, secret);
-    event.locals.auth = true
+    const {payload, protectedHeader} = await jwt.jwtVerify(token, secret);
+    event.locals.auth = true;
 
-  } catch {} 	
+  } catch (e){} 	
 
   const response = await resolve(event);
 	return response;

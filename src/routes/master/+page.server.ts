@@ -1,15 +1,14 @@
 import { db } from '$lib/server/db';
 import { studentsTable } from '$lib/server/db/schema';
-import { fail, } from '@sveltejs/kit';
+import { error, fail, } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { eq, type InferSelectModel } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
+import { getAllVisibleStudentIds, getAllVisibleStudents } from '$lib/server/db/getters';
 
-export const load: PageServerLoad = async ({fetch, depends, locals}) => {
-  if (!locals.auth) return fail(404, {unauthorized: true})
+export const load: PageServerLoad = async ({ depends, locals}) => {
+  if (!locals.auth) throw error(401, 'Unauthorized');
 
-  const res = await fetch("/api/students");
-  const students: InferSelectModel<typeof studentsTable>[] = await res.json();
-
+  const students = await getAllVisibleStudents();
   depends("app:reload");
 
   return {
@@ -19,7 +18,7 @@ export const load: PageServerLoad = async ({fetch, depends, locals}) => {
 };
 
 export const actions = {
-  default: async ({ cookies, request }) => {
+  default: async ({ request }) => {
     const data = await request.formData()
     const name = data.get("name")?.toString();
     const id = Number(data.get("id")?.toString()); //"fail missing"
@@ -27,11 +26,7 @@ export const actions = {
       return fail(400, {id, missing: true});
 
     }
-    const raw_ids = await db.select({id: studentsTable.id})
-    .from(studentsTable)
-    .where(eq(studentsTable.visible, true))
-
-    const ids = raw_ids.map(i => i.id);
+    const ids = await getAllVisibleStudentIds();
 
     //"fail repeated"
     if (ids.includes(id)) {
