@@ -74,7 +74,7 @@ function tick() {
   method="POST"  
   style="background-color: red;" 
   bind:this={htmlForm}
-  action="/"
+  action="/master"
   use:enhance={() => {
     return afterSubmit;
   }}  >
